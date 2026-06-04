@@ -2,6 +2,36 @@
 
 ---
 
+## 2026-06-04 - Shift+Space 半全形切換修正
+
+### 問題觀察
+
+- 使用者回報 C# 版肥米 `Shift+Space` 切換半形 / 全形好像沒有成功。
+- 檢查 `UCLLIU.ini` 與 `bin\Debug\UCLLIU.ini` 後確認 `ENABLE_HALF_FULL=1`，不是設定被關閉。
+- `Form1.LowLevelKeyboardProc` 既有分支有進入 `Shift+Space` 判斷，但切換動作是透過 `btn_HALF.PerformClick()` 間接觸發。
+
+### 根因判斷
+
+- 全域 keyboard hook 熱路徑不應依賴 UI button click 事件作為核心狀態切換入口；控制項焦點、可選狀態或訊息時機不穩時，快捷鍵可能沒有可靠落到 `toggle_hf()`。
+- `Shift+Space` 切完半全形後若清掉 `flag_is_shift_down`，使用者按住 Shift 不放再連按 Space 時，後續 Space 就不會再進半全形切換分支。
+- 半全形切換本身已集中在 `uclliu.toggle_hf()`，快捷鍵應直接呼叫這個邏輯。
+
+### 實作紀錄
+
+- 新增 `HalfFullShortcutRules.EvaluateShiftSpace()`，固定 `ENABLE_HALF_FULL`、Shift 狀態與切換後是否保留 Shift 的快捷鍵決策。
+- `Form1` 的 `Shift+Space` 分支改為直接呼叫 `ucl.toggle_hf()`，不再透過 `btn_HALF.PerformClick()`。
+- 半全形切換後保留 `flag_is_shift_down`，讓按住 Shift 連按 Space 可以連續切換半/全；Shift keyup 仍會正常清掉狀態。
+- 保留注音候選情境下 `Shift+Space` 優先換頁的既有行為。
+
+### 驗證紀錄
+
+- 先新增核心測試並確認紅燈：缺少 `HalfFullShortcutRules`。
+- `dotnet run --project tools\UclLiuCoreTests\UclLiuCoreTests.csproj` 通過。
+- 一般 `bin\Debug` rebuild 因 `tsf_bridge\UclTsfBridge.dll` 正被 Codex、瀏覽器、Explorer、Notepad++ 等程序載入而無法覆蓋 DLL；改用 `artifacts\debug-run` 臨時輸出目錄建置通過。
+- 已啟動 `artifacts\debug-run\uclliu.exe` 供實機測試。
+
+---
+
 ## 2026-05-28 - 0.14 管理員重啟與 TSF 啟用導引
 
 ### 問題觀察

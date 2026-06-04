@@ -47,18 +47,61 @@ foreach ($fileName in $optionalFiles) {
     }
 }
 
-$optionalDirectories = @("tsf_bridge")
-if ($IncludeWavs) {
-    $optionalDirectories += "wavs"
+function Copy-TsfBridgeRuntime {
+    param(
+        [string]$SourceRoot,
+        [string]$DestinationRoot
+    )
+
+    if (-not (Test-Path -LiteralPath $SourceRoot)) {
+        return
+    }
+
+    $destination = Join-Path $DestinationRoot "tsf_bridge"
+    if (-not (Test-Path -LiteralPath $destination)) {
+        New-Item -ItemType Directory -Path $destination | Out-Null
+    }
+
+    $rootFiles = @(
+        "UclTsfBridge.dll",
+        "register_tsf_bridge.bat",
+        "unregister_tsf_bridge.bat",
+        "unlock_tsf_bridge.ps1",
+        "README.md"
+    )
+    foreach ($fileName in $rootFiles) {
+        $sourcePath = Join-Path $SourceRoot $fileName
+        if (Test-Path -LiteralPath $sourcePath) {
+            Copy-Item -LiteralPath $sourcePath -Destination (Join-Path $destination $fileName) -Force
+        }
+    }
+
+    foreach ($arch in @("x64", "x86")) {
+        $sourceDll = Join-Path $SourceRoot (Join-Path $arch "UclTsfBridge.dll")
+        if (Test-Path -LiteralPath $sourceDll) {
+            $archDestination = Join-Path $destination $arch
+            if (-not (Test-Path -LiteralPath $archDestination)) {
+                New-Item -ItemType Directory -Path $archDestination | Out-Null
+            }
+            Copy-Item -LiteralPath $sourceDll -Destination (Join-Path $archDestination "UclTsfBridge.dll") -Force
+        }
+    }
 }
-foreach ($directoryName in $optionalDirectories) {
-    $sourcePath = Join-Path $buildDirectory $directoryName
+
+$tsfSourcePath = Join-Path $buildDirectory "tsf_bridge"
+if (-not (Test-Path -LiteralPath $tsfSourcePath)) {
+    $tsfSourcePath = Join-Path $ProjectRoot "tsf_bridge"
+}
+Copy-TsfBridgeRuntime -SourceRoot $tsfSourcePath -DestinationRoot $packageRoot
+
+if ($IncludeWavs) {
+    $sourcePath = Join-Path $buildDirectory "wavs"
     if (-not (Test-Path -LiteralPath $sourcePath)) {
-        $sourcePath = Join-Path $ProjectRoot $directoryName
+        $sourcePath = Join-Path $ProjectRoot "wavs"
     }
 
     if (Test-Path -LiteralPath $sourcePath) {
-        Copy-Item -LiteralPath $sourcePath -Destination (Join-Path $packageRoot $directoryName) -Recurse -Force
+        Copy-Item -LiteralPath $sourcePath -Destination (Join-Path $packageRoot "wavs") -Recurse -Force
     }
 }
 

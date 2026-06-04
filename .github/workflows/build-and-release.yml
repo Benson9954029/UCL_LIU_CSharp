@@ -41,6 +41,10 @@ jobs:
         shell: pwsh
         run: dotnet run --project .\tools\UclLiuCoreTests\UclLiuCoreTests.csproj
 
+      - name: Build TSF Bridge
+        shell: pwsh
+        run: .\build_tsf.bat
+
       - name: Build WinForms app
         shell: pwsh
         run: msbuild .\uclliu.csproj /m /p:Configuration=$env:CONFIGURATION /p:Platform=AnyCPU

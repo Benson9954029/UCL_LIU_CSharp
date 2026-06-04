@@ -378,7 +378,8 @@ namespace uclliu
                 return OK;
             }
 
-            if (keydown && ea == 32 && ucl.flag_is_shift_down && ucl.config["DEFAULT"]["ENABLE_HALF_FULL"] == "1")
+            HalfFullShortcutDecision halfFullShortcutDecision = HalfFullShortcutRules.EvaluateShiftSpace(ucl.config["DEFAULT"]["ENABLE_HALF_FULL"] == "1", ucl.flag_is_shift_down);
+            if (keydown && ea == 32 && halfFullShortcutDecision.ShouldToggleHalfFull)
             {
                 //# Press shift and space
                 //# switch 半/全
@@ -390,9 +391,9 @@ namespace uclliu
                 }
 
                 //ucl.hf_btn_click(hf_btn);
-                btn_HALF.PerformClick(); //trigger click
+                ucl.toggle_hf();
                 ucl.flag_is_play_otherkey = true;
-                ucl.flag_is_shift_down = false;
+                ucl.flag_is_shift_down = halfFullShortcutDecision.ShouldKeepShiftDown;
                 ucl.debug_print("Debug13");
                 return NO;
             }

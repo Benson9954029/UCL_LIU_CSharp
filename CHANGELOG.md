@@ -4,6 +4,20 @@ C# 版肥米輸入法更新紀錄。Python 版完整歷史請看 [UCL_LIU CHANGE
 
 ---
 
+## [0.15] - 2026-06-04
+
+### Added
+
+- 將 Python 版 `tsf_bridge\UclTsfBridge` C++ 原始碼納入 C# repo，讓 TSF Bridge 不再只是隨附 DLL。
+- 新增 `build_tsf.bat`，可在 C# repo 內編譯 TSF Bridge `Release|x64` / `Release|Win32`，並同步 runtime DLL 到 `tsf_bridge` 與 `bin\Debug` / `bin\Release` 的 `tsf_bridge` 目錄。
+- GitHub Actions release 流程會先編譯 TSF Bridge，再打包 runtime-only `tsf_bridge` 檔案，避免把 C++ 原始碼與 build 中間檔放進下載包。
+
+### Fixed
+
+- 修正一般狀態下 `Shift+Space` 半形/全形切換不穩：快捷鍵分支改為直接呼叫半全形切換邏輯，不再透過 `btn_HALF.PerformClick()` 間接觸發按鈕事件；切換後保留 Shift 狀態，按住 Shift 連按 Space 可連續切換半/全。
+
+---
+
 ## [0.14] - 2026-05-28
 
 ### Added

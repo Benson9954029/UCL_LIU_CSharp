@@ -95,4 +95,30 @@ namespace uclliu
             return halfFullShortcutEnabled && phoneMode && hasMorePage;
         }
     }
+
+    public struct HalfFullShortcutDecision
+    {
+        public HalfFullShortcutDecision(bool shouldToggleHalfFull, bool shouldKeepShiftDown)
+        {
+            ShouldToggleHalfFull = shouldToggleHalfFull;
+            ShouldKeepShiftDown = shouldKeepShiftDown;
+        }
+
+        public bool ShouldToggleHalfFull { get; private set; }
+        public bool ShouldKeepShiftDown { get; private set; }
+    }
+
+    public static class HalfFullShortcutRules
+    {
+        public static bool ShouldToggleOnShiftSpace(bool halfFullShortcutEnabled, bool shiftDown)
+        {
+            return EvaluateShiftSpace(halfFullShortcutEnabled, shiftDown).ShouldToggleHalfFull;
+        }
+
+        public static HalfFullShortcutDecision EvaluateShiftSpace(bool halfFullShortcutEnabled, bool shiftDown)
+        {
+            bool shouldToggle = halfFullShortcutEnabled && shiftDown;
+            return new HalfFullShortcutDecision(shouldToggle, shouldToggle);
+        }
+    }
 }

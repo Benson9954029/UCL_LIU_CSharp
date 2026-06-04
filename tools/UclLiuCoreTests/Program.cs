@@ -32,6 +32,7 @@ internal static class Program
         failed += Run("tsf bridge activation requires administrator restart", TestTsfBridgeActivationRequiresAdministratorRestart);
         failed += Run("tsf bridge activation prompts registration after administrator", TestTsfBridgeActivationPromptsRegistrationAfterAdministrator);
         failed += Run("tsf bridge activation allows ready administrator status", TestTsfBridgeActivationAllowsReadyAdministratorStatus);
+        failed += Run("tsf bridge source and build script are vendored", TestTsfBridgeSourceAndBuildScriptAreVendored);
         failed += Run("tsf bridge command text is stable", TestTsfBridgeCommandText);
         failed += Run("elevated restart request quotes executable arguments", TestElevatedRestartRequestQuotesArguments);
         failed += Run("short root setting toggles and persists SP", TestShortRootSettingTogglesAndPersistsSp);
@@ -93,6 +94,7 @@ internal static class Program
         failed += Run("candidate selection rejects non digit virtual keys", TestCandidateSelectionRejectsNonDigitVirtualKeys);
         failed += Run("phone candidate space defers to first candidate commit", TestPhoneCandidateSpaceDefersToFirstCandidateCommit);
         failed += Run("phone candidate shift space pages before half full toggle", TestPhoneCandidateShiftSpacePagesBeforeHalfFullToggle);
+        failed += Run("shift space toggles half full only when enabled", TestShiftSpaceTogglesHalfFullOnlyWhenEnabled);
         failed += Run("pinyi v001 same sound skips phonetic code and bopomofo tokens", TestPinyiV001SkipsPhoneCodeAndBopomofo);
         failed += Run("pinyi v001 same sound sorts by closest token index", TestPinyiV001SortsByClosestTokenIndex);
         failed += Run("pinyi legacy same sound keeps whole matching lines", TestPinyiLegacyKeepsWholeMatchingLines);
@@ -238,7 +240,7 @@ internal static class Program
     {
         string expected = "UCLLIU 肥米輸入法 C# 版\n\n"
             + "作者：羽山秋人 (https://3wa.tw)\n"
-            + "版本：0.14\n\n"
+            + "版本：0.15\n\n"
             + "熱鍵提示：\n\n"
             + "「,,,VERSION」目前版本\n"
             + "「'ucl」同音字查詢\n"
@@ -255,7 +257,7 @@ internal static class Program
             + "「,,,Z」框字的文字變成字根\n"
             + "「,,,BOX」開啟自定詞庫\n";
 
-        AssertEqual("0.14", UclLiuAppInfo.Version);
+        AssertEqual("0.15", UclLiuAppInfo.Version);
         AssertEqual("UCLLIU 肥米輸入法 C# 版", UclLiuAppInfo.AboutTitle);
         AssertEqual("Fastest Chinese Input Method", UclLiuAppInfo.FileDescription);
         AssertEqual("UCLLIU Input Method", UclLiuAppInfo.ProductName);
@@ -428,6 +430,17 @@ internal static class Program
         {
             Directory.Delete(dir, true);
         }
+    }
+
+    private static void TestTsfBridgeSourceAndBuildScriptAreVendored()
+    {
+        string root = FindRepositoryRoot();
+        string sourceDirectory = Path.Combine(root, "tsf_bridge", "UclTsfBridge");
+
+        AssertTrue(File.Exists(Path.Combine(root, "build_tsf.bat")), "root build_tsf.bat should be available");
+        AssertTrue(File.Exists(Path.Combine(sourceDirectory, "UclTsfBridge.vcxproj")), "TSF vcxproj should be vendored");
+        AssertTrue(File.Exists(Path.Combine(sourceDirectory, "TextService.cpp")), "TSF TextService.cpp should be vendored");
+        AssertTrue(File.Exists(Path.Combine(sourceDirectory, "Register.cpp")), "TSF Register.cpp should be vendored");
     }
 
     private static void TestTsfBridgeCommandText()
@@ -1453,6 +1466,17 @@ internal static class Program
         AssertTrue(!PhoneCandidateKeyRules.ShouldPageOnShiftSpace(true, true, false), "disabled shift+space shortcut should not page");
     }
 
+    private static void TestShiftSpaceTogglesHalfFullOnlyWhenEnabled()
+    {
+        AssertTrue(HalfFullShortcutRules.ShouldToggleOnShiftSpace(true, true), "enabled Shift+Space should toggle half/full");
+        AssertTrue(!HalfFullShortcutRules.ShouldToggleOnShiftSpace(true, false), "space without Shift should not toggle half/full");
+        AssertTrue(!HalfFullShortcutRules.ShouldToggleOnShiftSpace(false, true), "disabled Shift+Space should not toggle half/full");
+
+        HalfFullShortcutDecision decision = HalfFullShortcutRules.EvaluateShiftSpace(true, true);
+        AssertTrue(decision.ShouldToggleHalfFull, "enabled Shift+Space should toggle half/full");
+        AssertTrue(decision.ShouldKeepShiftDown, "Shift should stay down after half/full toggle so repeated Space can toggle again");
+    }
+
     private static void TestPinyiV001SkipsPhoneCodeAndBopomofo()
     {
         string[] lines = new string[]
@@ -1626,6 +1650,22 @@ internal static class Program
         buffer[offset + 1] = data[1];
         buffer[offset + 2] = data[2];
         buffer[offset + 3] = data[3];
+    }
+
+    private static string FindRepositoryRoot()
+    {
+        DirectoryInfo directory = new DirectoryInfo(Directory.GetCurrentDirectory());
+        while (directory != null)
+        {
+            if (File.Exists(Path.Combine(directory.FullName, "uclliu.csproj"))
+                && File.Exists(Path.Combine(directory.FullName, "README.md")))
+            {
+                return directory.FullName;
+            }
+            directory = directory.Parent;
+        }
+
+        throw new Exception("Repository root not found from " + Directory.GetCurrentDirectory());
     }
 
     private static void AssertContains(string haystack, string needle)
