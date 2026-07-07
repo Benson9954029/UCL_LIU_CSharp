@@ -4,6 +4,19 @@ C# 版肥米輸入法更新紀錄。Python 版完整歷史請看 [UCL_LIU CHANGE
 
 ---
 
+## [0.16] - 2026-07-07
+
+### Fixed
+
+- 整理 Benson9954029 協助修正的大 bug 為 v0.16 bugfix 發行。
+
+### Documentation
+
+- 程式版本、exe 說明、README 與 CHANGELOG 更新至 v0.16。
+- 作者名單與「關於肥米輸入法」補上 Benson9954029。
+
+---
+
 ## [0.15] - 2026-06-04
 
 ### Added

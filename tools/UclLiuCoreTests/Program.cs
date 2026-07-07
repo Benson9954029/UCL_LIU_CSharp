@@ -239,8 +239,8 @@ internal static class Program
     private static void TestAppInfoExposesVersionAndAuthorMessage()
     {
         string expected = "UCLLIU 肥米輸入法 C# 版\n\n"
-            + "作者：羽山秋人 (https://3wa.tw)\n"
-            + "版本：0.15\n\n"
+            + "作者：羽山秋人 (https://3wa.tw)、Benson9954029\n"
+            + "版本：0.16\n\n"
             + "熱鍵提示：\n\n"
             + "「,,,VERSION」目前版本\n"
             + "「'ucl」同音字查詢\n"
@@ -257,13 +257,13 @@ internal static class Program
             + "「,,,Z」框字的文字變成字根\n"
             + "「,,,BOX」開啟自定詞庫\n";
 
-        AssertEqual("0.15", UclLiuAppInfo.Version);
+        AssertEqual("0.16", UclLiuAppInfo.Version);
         AssertEqual("UCLLIU 肥米輸入法 C# 版", UclLiuAppInfo.AboutTitle);
         AssertEqual("Fastest Chinese Input Method", UclLiuAppInfo.FileDescription);
         AssertEqual("UCLLIU Input Method", UclLiuAppInfo.ProductName);
         AssertEqual("Magic 3WA The legend of trainer (https://3wa.tw)", UclLiuAppInfo.CompanyName);
         AssertEqual("Copyright (c) MIT 3WA Studio (https://3wa.tw)", UclLiuAppInfo.Copyright);
-        AssertEqual("Author: FeatherMountain (https://3wa.tw)", UclLiuAppInfo.Comments);
+        AssertEqual("Authors: FeatherMountain (https://3wa.tw), Benson9954029", UclLiuAppInfo.Comments);
         AssertEqual(expected, UclLiuAppInfo.BuildAboutText());
     }
 

@@ -2,6 +2,20 @@
 
 ---
 
+## 2026-07-07 - v0.16 版號與 Benson9954029 作者名單
+
+### 實作紀錄
+
+- `UclLiuAppInfo.Version`、`AssemblyVersion`、`AssemblyFileVersion` 更新為 `0.16` / `0.16.0.0`。
+- 「關於肥米輸入法」、exe 說明註解、README 作者名單補上 Benson9954029。
+- README 發行資訊、打包/tag 範例與 CHANGELOG 新增 v0.16，記錄 Benson9954029 協助修正的大 bug。
+
+### 驗證紀錄
+
+- `dotnet run --project tools\UclLiuCoreTests\UclLiuCoreTests.csproj` 通過。
+
+---
+
 ## 2026-06-04 - Shift+Space 半全形切換修正
 
 ### 問題觀察
