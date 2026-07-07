@@ -1601,7 +1601,7 @@ namespace uclliu
         }
         private void menu_run_exit(object sender, EventArgs e)
         {
-            btn_X.PerformClick();
+            this.Close();
         }
         private void menu_change_sp(object sender, EventArgs e)
         {
@@ -1725,6 +1725,17 @@ namespace uclliu
 
             cMenu.MenuItems.Add("11. 自定詞庫", this.menu_open_custom_dict);
             cMenu.MenuItems.Add("12. 離開(Quit)", this.menu_run_exit);
+        }
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            if (intLLKey != 0)
+            {
+                UnhookWindowsHookEx(intLLKey);
+                intLLKey = 0;
+            }
+
+            Application.Exit();
         }
     }
 }
